@@ -2,17 +2,17 @@ const http = require('http');
 
 const port = 3000
 const server = http.createServer((req, res) => { 
-    if (req.body === 'GET') {
+    if (req.method === 'GET') {
         res.writeHead(200, { 'Content-type': 'application/json' })
-        res.end('{status":"starting}')
+       res.end('{"status":"starting"}');  
 
-    } else if(req.body === 'POST'){
+    } else if(req.method === 'POST'){
         let body = ''
         req.on('data', (chunk) => { 
             body += chunk.toString()
         })
 
-        res.on('end', () => { 
+        req.on('end', () => { 
             res.writeHead(200, { 'Content-type': 'application/json' })
              res.end(body);
         })
