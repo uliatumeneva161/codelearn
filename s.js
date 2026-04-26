@@ -2,7 +2,23 @@ const http = require('http');
 const crypto = require('crypto');
 
 const port = 3000;
-let courses = [];
+let courses = [
+  {
+    "id": "1",
+    "title": "Node.js Basics",
+    "desc": "Learn Node.js from scratch"
+  },
+  {
+    "id": "2",
+    "title": "Express Framework",
+    "desc": "Build web applications with Express"
+  },
+  {
+    "id": "3",
+    "title": "MongoDB",
+    "desc": "NoSQL database course"
+  }
+];
 
 function parseBody(req) {
     return new Promise((resolve, reject) => {
@@ -30,6 +46,8 @@ function parseBody(req) {
 const server = http.createServer(async (req, res) => { 
     const url = new URL(req.url, `http://${req.headers.host}`);
     const path = url.pathname;
+    let id = path.split('/').pop()
+
     const method = req.method;
     
     console.log(`${method} ${path}`);
@@ -52,7 +70,7 @@ const server = http.createServer(async (req, res) => {
             res.end(JSON.stringify({ error: err.message }));
         }
     } 
-    else if (method === 'PUT' && path === '/courses') {
+    else if (method === 'PUT' && path === `/courses`) {
         try {
             const parsedBody = await parseBody(req);
             
@@ -81,7 +99,20 @@ const server = http.createServer(async (req, res) => {
             res.writeHead(400, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ error: err.message }));
         }
-    } 
+    }else if (method === 'DELETE' && path.startsWith('/courses/')){
+        const idCourse = courses.findIndex( course => course.id === id )
+        if(idCourse !== -1){
+            courses.splice(idCourse, 1)
+       res.writeHead(204); 
+        res.end();
+        console.log(`Deleted course with id: ${id}`);
+        console.log(`Remaining courses: ${courses.length}`);
+        }else{
+              res.writeHead(400); 
+        res.end(JSON.stringify({ error: 'Course not found' }));
+        }
+        
+    }   
     else {
         res.writeHead(404, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ error: 'Not found' }));
